@@ -4,8 +4,8 @@ require 'net/http'
 require 'rexml/document'
 
 class Markov
-  def initialize(appid, statuses, name)
-    @name  = name
+  def initialize(appid, statuses, user)
+    @user  = user
     @appid = appid
     @sentences = []
     @statuses  = []
@@ -16,7 +16,9 @@ class Markov
     status.source.gsub!(/<[^>]+>/, '')
     if (init || rand(2) == 0) &&
        status.user.protected != 'true' &&
-       status.user.screen_name != @name &&
+       status.user.id != @user.id &&
+     (!status.in_reply_to_user_id ||
+       status.in_reply_to_user_id == @user.id)
       !status.text.slice('t.co') &&
       ![ 'twittbot.net',
          'EasyBotter',

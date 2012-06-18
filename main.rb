@@ -10,25 +10,24 @@ options = {
   :consumer_secret    => ENV['CONSUMER_SECRET'],
   :oauth_token        => ENV['ACCESS_TOKEN'],
   :oauth_token_secret => ENV['ACCESS_TOKEN_SECRET'],
-  :screen_name        => ENV['SCREEN_NAME']
 }
 
 twitter = Twitter.new(options)
 stream  = UserStream.client(options)
-markov  = Markov.new(ENV['APPID'], twitter.home_timeline(:count => 30), options[:screen_name])
+user    = twitter.verify_credentials
+markov  = Markov.new(ENV['APPID'], twitter.home_timeline(:count => 30), user)
 
 loop do
   stream.user(:replies => 'all') do |status|
-    if status.text && status.user.screen_name != options[:screen_name]
-      if status.text =~ /[@＠]#{options[:screen_name]}/
+    if status.text && status.user.id != user.id
+      if status.text =~ /[@＠]#{user.screen_name}/
         begin
-          twitter.update("@#{status.user.screen_name} #{markov.create}"[0...140],
-                          :in_reply_to_status_id => status.id)
+          twitter.update("@#{status.user.screen_name} #{markov.create}"[0...140], :in_reply_to_status_id => status.id)
         rescue
         end
       end
       markov.add(status)
-    elsif status.event == 'follow' && status.target.screen_name == options[:screen_name]
+    elsif status.event == 'follow' && status.target.id == user.id
       begin
         twitter.follow(status.source.screen_name)
       rescue
