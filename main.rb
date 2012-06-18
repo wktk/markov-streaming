@@ -15,7 +15,7 @@ options = {
 
 twitter = Twitter.new(options)
 stream  = UserStream.client(options)
-markov  = Markov.new(ENV['APPID'], twitter.home_timeline(:count => 30))
+markov  = Markov.new(ENV['APPID'], twitter.home_timeline(:count => 30), options[:screen_name])
 
 loop do
   stream.user(:replies => 'all') do |status|
