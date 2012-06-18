@@ -22,7 +22,7 @@ loop do
     if status.text && status.user.screen_name != options[:screen_name]
       if status.text =~ /[@＠]#{options[:screen_name]}/
         begin
-          twitter.update(("@#{status.user.screen_name} #{markov.create}").split[0...140].join,
+          twitter.update("@#{status.user.screen_name} #{markov.create}"[0...140],
                           :in_reply_to_status_id => status.id)
         rescue
         end

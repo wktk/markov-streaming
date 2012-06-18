@@ -21,9 +21,9 @@ class Markov
          'Easybotter',
          'ツイ助。',
          'MySweetBot',
-         'BotMaker' ].index(status.source)
-      
-      status.text.gsub!(/[　\s]*(?:[@＠#＃]\w+|殺)[　\s]*/, '')
+         'BotMaker' ].index(status.source) &&
+       status.text.gsub!(/[　\s]*(?:[@＠#＃]\w+|殺)/, '') &&
+       !status.text.empty?
       @statuses.push(status.text)
       @sentences.push(self.split(status.text))
       if !init
