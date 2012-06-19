@@ -14,26 +14,16 @@ class Markov
   
   def add(status, init = false)
     status.source.gsub!(/<[^>]+>/, '')
-    if (init || rand(2) == 0) &&
-       status.user.protected != 'true' &&
-       status.user.id != @user.id &&
-     (!status.in_reply_to_user_id ||
-       status.in_reply_to_user_id == @user.id)
-      !status.text.slice('t.co') &&
-      ![ 'twittbot.net',
-         'EasyBotter',
-         'Easybotter',
-         'ツイ助。',
-         'MySweetBot',
-         'BotMaker' ].index(status.source) &&
-       status.text.gsub!(/[　\s]*(?:[@＠#＃]\w+|殺)/, '') &&
-       !status.text.empty?
+    if (init || rand(2) == 0) && !status.user.protected && status.user.id != @user.id &&
+       (!status.in_reply_to_user_id || status.in_reply_to_user_id == @user.id)
+       ![ 'twittbot.net', 'EasyBotter', 'Easybotter', 'ツイ助。', 'MySweetBot', 'BotMaker' ].index(status.source)
+      status.text.gsub!(/[　\s]*(?:[@＠#＃]\w+|殺|https?:\/\/t.co\/\w+|[rqｒｑＲＱ][tｔＴ].*)/im, '')
+      return if status.text.gsub(/[　\s]/, '').empty?
       @statuses.push(status.text)
       @sentences.push(self.split(status.text))
-      if !init
-        @statuses.shift
-        @sentences.shift
-      end
+      return if init
+      @statuses.shift
+      @sentences.shift
     end
   end
   
