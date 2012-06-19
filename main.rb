@@ -20,7 +20,7 @@ markov  = Markov.new(ENV['APPID'], twitter.home_timeline(:count => 30), user)
 loop do
   stream.user(:replies => 'all') do |status|
     if status.text && status.user.id != user.id
-      if status.text =~ /[@＠]#{user.screen_name}/ && status.text !~ /[rqｒｑＲＱ][tｔＴ]/ 
+      if status.text =~ /[@＠]#{user.screen_name}/ && status.text !~ /[rqｒｑＲＱ][tｔＴ]/i
         begin
           twitter.update("@#{status.user.screen_name} #{markov.create}"[0...140], :in_reply_to_status_id => status.id)
         rescue
