@@ -15,7 +15,7 @@ class Markov
   def add(status, init = false)
     status.source.gsub!(/<[^>]+>/, '')
     if (init || rand(2) == 0) && !status.user.protected && status.user.id != @user.id &&
-       (!status.in_reply_to_user_id || status.in_reply_to_user_id == @user.id)
+       (!status.in_reply_to_user_id || status.in_reply_to_user_id == @user.id) &&
        ![ 'twittbot.net', 'EasyBotter', 'Easybotter', 'ツイ助。', 'MySweetBot', 'BotMaker' ].index(status.source)
       status.text.gsub!(/[　\s]*(?:[@＠#＃]\w+|殺|https?:\/\/t.co\/\w+|[rqｒｑＲＱ][tｔＴ].*)/im, '')
       return if status.text.gsub(/[　\s]/, '').empty?
@@ -34,7 +34,7 @@ class Markov
       words.each { |word| dictionary[prev] += [prev = word] }
       dictionary[prev] += ['[[END]]']
     end
-    dictionary
+    return dictionary
   end
   
   def create(dictionary = self.get, statuses = @statuses)
@@ -59,6 +59,6 @@ class Markov
     doc = REXML::Document.new(response.body)
     words = []
     doc.elements.each('ResultSet/ma_result/word_list/word/surface') { |word| words.push(word.text) }
-    words
+    return words
   end
 end
