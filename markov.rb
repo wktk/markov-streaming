@@ -5,30 +5,23 @@ require 'rexml/document'
 require 'okura/serializer'
 
 class Markov
-  def initialize(statuses, user)
-    @user      = user
-    @sentences = []
-    @statuses  = []
+  def initialize()
+    @sentences = [] # 元の文章の記録用
+    @statuses  = [] # 単語分割済み文章用
     @tagger    = Okura::Serializer::FormatInfo.create_tagger 'naist-jdic'
-    statuses.each { |status| self.add(status, true) }
   end
   
-  def add(status, init = false)
-    status.source.gsub!(/<[^>]+>/, '')
-    if !status.user.protected && status.user.id != @user.id &&
-       (!status.in_reply_to_user_id || status.in_reply_to_user_id == @user.id) &&
-       ![ 'twittbot.net', 'EasyBotter', 'Easybotter', 'ツイ助。', 'MySweetBot', 'BotMaker' ].index(status.source)
-      status.text.gsub!(/[　\s]*(?:[@＠#＃]\w+|殺|https?:\/\/t.co\/\w+|[rqｒｑＲＱ][tｔＴ].*)/im, '')
-      return if status.text.gsub(/[　\s]/, '').empty?
-      @statuses.push(status.text)
-      @sentences.push(self.split(status.text))
-      return if init
-      @statuses.shift
-      @sentences.shift
-    end
+  def add(text, init = false)
+    @statuses.push(text)
+    @sentences.push(self.split(text))
+    
+    # 昔のことは忘れる
+    return if init
+    @statuses.shift
+    @sentences.shift
   end
   
-  def get
+  def dictionary
     dictionary = Hash.new([].freeze)
     @sentences.each do |words|
       prev = '[[START]]'
@@ -38,8 +31,7 @@ class Markov
     return dictionary
   end
   
-  def create(dictionary = self.get, statuses = @statuses)
-    text = ''
+  def create(dictionary = self.dictionary, statuses = @statuses)
     for i in 1..50
       text = ''
       word = '[[START]]'
@@ -50,7 +42,7 @@ class Markov
       end
       return text if !statuses.index(text)
     end
-    return text
+    return ''
   end
   
   protected
