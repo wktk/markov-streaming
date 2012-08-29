@@ -15,7 +15,7 @@ options = {
 twitter = Twitter.new(options)
 stream  = UserStream.client(options)
 user    = twitter.verify_credentials
-markov  = Markov.new(ENV['APPID'], twitter.home_timeline(:count => 30), user)
+markov  = Markov.new(twitter.home_timeline(:count => 30), user)
 
 loop do
   stream.user(:replies => 'all') do |status|
