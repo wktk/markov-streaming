@@ -14,8 +14,7 @@ options = {
 
 twitter = Twitter.new(options)
 stream  = UserStream.client(options)
-@user    = twitter.verify_credentials
-
+@user   = twitter.verify_credentials
 @markov = Markov.new
 
 def add(status, init = false)
@@ -44,7 +43,7 @@ def add(status, init = false)
   # 前後の空白を削除
   status.text.strip!
   
-  @markov.add(status.text, init)
+  @markov.add(status.text, init) if !status.text.empty?
 end
 
 twitter.home_timeline(:count => 30).each { |status| add(status, true) }
@@ -67,5 +66,5 @@ loop do
       end
     end
   end
-  sleep(30)
+  sleep(300)
 end
