@@ -4,27 +4,27 @@ require 'net/http'
 require 'okura/serializer'
 
 class Markov
-  def initialize()
-    @sentences = [] # 元の文章の記録用
-    @statuses  = [] # 単語分割済み文章用
-    @tagger    = Okura::Serializer::FormatInfo.create_tagger 'naist-jdic'
+  def initialize
+    @original_texts = []
+    @splited_texts  = []
+    @tagger         = Okura::Serializer::FormatInfo.create_tagger 'naist-jdic'
   end
   
   def add(text, init = false)
     words = self.split(text)
     return if words.length < 4  # 単語が少ないと連鎖しづらいのでスルー
-    @statuses.push(text)
-    @sentences.push(words)
+    @original_texts.push(text)
+    @splited_texts.push(words)
     
     # 昔のことは忘れる
     return if init
-    @statuses.shift
-    @sentences.shift
+    @original_texts.shift
+    @splited_texts.shift
   end
   
   def dictionary
     dictionary = Hash.new([].freeze)
-    @sentences.each do |words|
+    @splited_texts.each do |words|
       prev = '[[START]]'
       words.each { |word| dictionary[prev] += [prev = word] }
       dictionary[prev] += ['[[END]]']
@@ -32,16 +32,16 @@ class Markov
     return dictionary
   end
   
-  def create(dictionary = self.dictionary, statuses = @statuses)
+  def create(dictionary = self.dictionary, original_texts = @original_texts)
     for i in 1..50
       text = ''
       word = '[[START]]'
-      while true
+      loop do
         word = dictionary[word].sample
         break if word == '[[END]]'
         text += word
       end
-      return text if !statuses.index(text)
+      return text if !original_texts.index(text)
     end
     return ''
   end
