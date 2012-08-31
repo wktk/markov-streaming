@@ -1,7 +1,6 @@
 # coding: utf-8
 
 require 'net/http'
-require 'rexml/document'
 require 'okura/serializer'
 
 class Markov
@@ -12,8 +11,10 @@ class Markov
   end
   
   def add(text, init = false)
+    words = self.split(text)
+    return if words.length < 4  # 単語が少ないと連鎖しづらいのでスルー
     @statuses.push(text)
-    @sentences.push(self.split(text))
+    @sentences.push(words)
     
     # 昔のことは忘れる
     return if init
@@ -49,7 +50,7 @@ class Markov
   def split(text)
     words = []
     @tagger.parse(text).mincost_path.each{ |node|
-      words.push node.word.surface if node.word.surface != "BOS/EOS"
+      words.push node.word.surface if node.word.surface != 'BOS/EOS'
     }
     return words
   end
