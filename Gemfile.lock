@@ -30,6 +30,6 @@ PLATFORMS
   x86-mingw32
 
 DEPENDENCIES
-  okura
+  okura (= 0.0.1)
   twitter (~> 2.2.0)
   userstream (~> 1.2.1)

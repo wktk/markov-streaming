@@ -48,10 +48,8 @@ class Markov
   
   protected
   def split(text)
-    words = []
-    @tagger.parse(text).mincost_path.each{ |node|
-      words.push node.word.surface if node.word.surface != 'BOS/EOS'
-    }
+    words = @tagger.wakati(text, nil)
+    words.delete('BOS/EOS')
     return words
   end
 end
