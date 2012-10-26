@@ -25,7 +25,4 @@ heroku ps:scale worker=1
 ```
 プロセスを停止する場合は `heroku ps:scale worker=0` を実行してください。
 
-### 通常のサーバーで動かす場合
-ruby から main.rb を実行してください。
-アクセストークンは環境変数に設定するか、main.rb 内に直接記述してください。
 
