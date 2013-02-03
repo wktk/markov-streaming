@@ -51,7 +51,7 @@ twitter.home_timeline(:count => 30).each { |status| add(status, true) }
 loop do
   stream.user(:replies => 'all') do |status|
     if status.text && status.user.id != @user.id
-      if status.text =~ /[@＠]#{@user.screen_name}(?!\w)/ && status.text !~ /[rqｒｑＲＱ][tｔＴ]/i
+      if status.text =~ /[@＠]#{@user.screen_name}(?!\w)|#{@user.name}へ。/ && status.text !~ /[rqｒｑＲＱ][tｔＴ]/i
         begin
           twitter.update("@#{status.user.screen_name} #{@markov.create}"[0...140], :in_reply_to_status_id => status.id)
         rescue
