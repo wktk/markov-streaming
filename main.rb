@@ -4,13 +4,6 @@ require 'twitter'
 require 'user_stream'
 require './markov'
 
-options = {
-  :consumer_key       => ENV['CONSUMER_KEY'],
-  :consumer_secret    => ENV['CONSUMER_SECRET'],
-  :oauth_token        => ENV['ACCESS_TOKEN'],
-  :oauth_token_secret => ENV['ACCESS_TOKEN_SECRET'],
-}
-
 def puts(*args)
   STDERR.puts *args
 end
@@ -37,6 +30,13 @@ def get_text(status)
 
   status.text
 end
+
+options = {
+  :consumer_key       => ENV['CONSUMER_KEY'],
+  :consumer_secret    => ENV['CONSUMER_SECRET'],
+  :oauth_token        => ENV['ACCESS_TOKEN'],
+  :oauth_token_secret => ENV['ACCESS_TOKEN_SECRET'],
+}
 
 twitter = Twitter::Client.new(options)
 stream = UserStream::Client.new(options)
