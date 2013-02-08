@@ -10,7 +10,7 @@ class Markov
   end
 
   def add(text, init = false)
-    words = self.split(text)
+    words = wakati(text)
     return if words.length < 4  # 単語が少ないと連鎖しづらいのでスルー
     @original_texts.push(text)
     @splited_texts.push(words)
@@ -45,7 +45,7 @@ class Markov
     return ''
   end
 
-  def split(text)
-    words = @tagger.wakati(text, nil)
+  def wakati(text)
+    @tagger.wakati(text, nil)
   end
 end
