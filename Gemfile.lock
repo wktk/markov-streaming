@@ -1,3 +1,10 @@
+GIT
+  remote: git://github.com/wktk/okura.git
+  revision: 9086b673518296f87d4d258e6bf424723639fb13
+  branch: fix-wakati
+  specs:
+    okura (0.0.1)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -7,7 +14,6 @@ GEM
     multi_json (1.5.0)
     multipart-post (1.1.5)
     oauth (0.4.7)
-    okura (0.0.1)
     simple_oauth (0.2.0)
     twitter (4.5.0)
       faraday (~> 0.8, < 0.10)
@@ -23,6 +29,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  okura (= 0.0.1)
+  okura (= 0.0.1)!
   twitter (~> 4.5)
   userstream (~> 1.2.4)

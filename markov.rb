@@ -13,7 +13,7 @@ class Markov
   end
 
   def add(text)
-    words = @tagger.wakati(text, nil)
+    words = @tagger.wakati(text)
     return false if words.length < 6
     @splited.push(words)
     @original.push(text)
