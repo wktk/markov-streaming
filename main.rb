@@ -96,11 +96,12 @@ Thread.new do
 end
 
 Thread.new do
-  last = Time.at(0)
+  min_regexp = /#{ENV['MIN_REGEXP'] ? ENV['MIN_REGEXP'] : 25}/
+  last = nil
   loop do
     sleep(1)
     now = Time.now
-    if now.min == 0 && last.hour == now.hour || last.year != now.year
+    if min_regexp =~ now.min.to_s && (last.nil? || last.hour != now.hour || last.min != now.min)
       message = @markov.create
       puts "Scheduled post: #{message}"
       begin
