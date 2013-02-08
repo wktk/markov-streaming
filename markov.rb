@@ -1,51 +1,50 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 require 'okura/serializer'
 
 class Markov
-  def initialize
-    @original_texts = []
-    @splited_texts = []
+  def initialize(texts = [])
+    @original = []
+    @splited = []
     @tagger = Okura::Serializer::FormatInfo.create_tagger 'naist-jdic'
+    texts.each { |text| add(text) }
   end
 
-  def add(text, init = false)
-    words = wakati(text)
-    return if words.length < 4  # 単語が少ないと連鎖しづらいのでスルー
-    @original_texts.push(text)
-    @splited_texts.push(words)
-
-    # 昔のことは忘れる
-    return if init
-    @original_texts.shift
-    @splited_texts.shift
+  def add(text)
+    words = @tagger.wakati(text)
+    return false if words.length < 4
+    @splited.push(words)
+    @original.push(text)
   end
 
-  def dictionary
-    dictionary = Hash.new([].freeze)
-    @splited_texts.each do |words|
+  def add_new(text)
+    add(text)
+    @splited.shift
+    @original.shift
+  end
+
+  def get_table
+    table = Hash.new([].freeze)
+    @splited.each do |words|
       prev = 'BOS/EOS'
-      words.each { |word| dictionary[prev] += [prev = word] }
-      dictionary[prev] += ['BOS/EOS']
+      words.each { |word| table[prev].push(prev = word) }
+      table[prev].push('BOS/EOS')
     end
-    dictionary
+    table
   end
 
-  def create(dictionary = self.dictionary, original_texts = @original_texts)
-    for i in 1..50
+  def create(table = get_table, original = @original)
+    text = ''
+    50.times do
       text = ''
       word = 'BOS/EOS'
       loop do
-        word = dictionary[word].sample
-        break if word == 'BOS/EOS'
+        word = table[word].sample
+        break if 'BOS/EOS' == word
         text += word
       end
-      break if !original_texts.index(text)
+      break unless original.include?(text)
     end
     text
-  end
-
-  def wakati(text)
-    @tagger.wakati(text, nil)
   end
 end

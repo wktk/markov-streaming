@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 require 'twitter'
 require 'user_stream'
@@ -16,36 +16,31 @@ stream  = UserStream.client(options)
 @user   = twitter.verify_credentials
 @markov = Markov.new
 
-def add(status, init = false)
-  # protected ユーザーを除外
-  return if status.user.protected
-
-  # 自分のツイートを除外
-  return if status.user.id == @user.id
-
-  # 他人宛ツイートを除外
-  return if status.in_reply_to_user_id && status.in_reply_to_user_id != @user.id
-
-  # bot などを除外
+def get_text(status)
   status.source.gsub!(/<[^>]+>/, '')
-  return if [
-    'twittbot.net',
-    'EasyBotter',
-    'ツイ助。',
-    'MySweetBot',
-    'BotMaker'
-  ].index(status.source)
-
-  # ユーザー名、URL などを削除
   status.text.gsub!(/[@＠#＃]\w+|殺|https?:\/\/t.co\/\w+|[rqｒｑＲＱ][tｔＴ].*/im, '')
-
-  # 前後の空白を削除
   status.text.strip!
 
-  @markov.add(status.text, init) if !status.text.empty?
+  if false
+    || status.user.protected
+    || status.user.id == @user.id
+    || status.text.empty?
+    || (status.in_reply_to_user_id && status.in_reply_to_user_id != @user.id)
+    || [
+      'twittbot.net',
+      'EasyBotter',
+      'ツイ助。',
+      'MySweetBot',
+      'BotMaker'
+    ].include?(status.source)
+
+    return nil
+  end
+
+  status.text
 end
 
-twitter.home_timeline(:count => 30).each { |status| add(status, true) }
+twitter.home_timeline(:count => 30).map { |status| get_text(status) }.compact.each { |status| add(status, true) }
 
 loop do
   stream.user(:replies => 'all') do |status|
@@ -56,7 +51,8 @@ loop do
         rescue
         end
       end
-      add(status)
+      text = get_text(status)
+      @markov.add_new(text) if text
     elsif status.event == 'follow' && status.target.id == @user.id
       begin
         # フォロー返し
