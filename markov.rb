@@ -14,7 +14,7 @@ class Markov
 
   def add(text)
     words = @tagger.wakati(text, nil)
-    return false if words.length < 4
+    return false if words.length < 6
     @splited.push(words)
     @original.push(text)
   end
@@ -28,9 +28,8 @@ class Markov
   def get_table
     table = Hash.new([].freeze)
     @splited.each do |words|
-      prev = 'BOS/EOS'
+      prev = words.shift
       words.each { |word| table[prev] += [prev = word] }
-      table[prev] += ['BOS/EOS']
     end
     table
   end
