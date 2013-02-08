@@ -11,7 +11,7 @@ options = {
   :oauth_token_secret => ENV['ACCESS_TOKEN_SECRET'],
 }
 
-twitter = Twitter.new(options)
+twitter = Twitter.client(options)
 stream  = UserStream.client(options)
 @user   = twitter.verify_credentials
 @markov = Markov.new
