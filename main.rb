@@ -19,13 +19,13 @@ stream  = UserStream.client(options)
 def add(status, init = false)
   # protected ユーザーを除外
   return if status.user.protected
-  
+
   # 自分のツイートを除外
   return if status.user.id == @user.id
-  
+
   # 他人宛ツイートを除外
   return if status.in_reply_to_user_id && status.in_reply_to_user_id != @user.id
-  
+
   # bot などを除外
   status.source.gsub!(/<[^>]+>/, '')
   return if [
@@ -35,13 +35,13 @@ def add(status, init = false)
     'MySweetBot',
     'BotMaker'
   ].index(status.source)
-  
+
   # ユーザー名、URL などを削除
   status.text.gsub!(/[@＠#＃]\w+|殺|https?:\/\/t.co\/\w+|[rqｒｑＲＱ][tｔＴ].*/im, '')
-  
+
   # 前後の空白を削除
   status.text.strip!
-  
+
   @markov.add(status.text, init) if !status.text.empty?
 end
 
