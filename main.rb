@@ -11,6 +11,10 @@ options = {
   :oauth_token_secret => ENV['ACCESS_TOKEN_SECRET'],
 }
 
+def puts(*args)
+  STDERR.puts *args
+end
+
 def get_text(status)
   status.source.gsub!(/<[^>]+>/, '')
   status.text.gsub!(/[@＠#＃]\w+|殺|https?:\/\/t.co\/\w+|[rqｒｑＲＱ][tｔＴ].*/im, '')
