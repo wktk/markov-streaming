@@ -111,7 +111,7 @@ loop do
     elsif status.event == 'follow' && status.target.id == @user.id
       puts "Followed by @#{status.source.screen_name}.  Following back..."
       begin
-        result = twitter.follow(status.source.screen_name)
+        result = twitter.follow!(status.source.screen_name)[0]
       rescue => e
         puts "#{e.class} following @#{status.source.screen_name}: #{e}"
       else
