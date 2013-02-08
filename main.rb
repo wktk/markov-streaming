@@ -39,7 +39,7 @@ def get_text(status)
 end
 
 twitter = Twitter::Client.new(options)
-stream = UserStream.client(options)
+stream = UserStream::Client.new(options)
 @user = twitter.verify_credentials
 @markov = Markov.new(twitter.home_timeline(:count => 200).map { |status| get_text(status) }.compact[0...30])
 puts "Ready (Bot: @#{@user.screen_name})"
