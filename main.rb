@@ -44,6 +44,8 @@ stream = UserStream::Client.new(options)
 @markov = Markov.new(twitter.home_timeline(:count => 200).map { |status| get_text(status) }.compact[0...30])
 puts "Ready (Bot: @#{@user.screen_name})"
 
+Thread.abort_on_exception = true
+
 Thread.new do
   friends = []
   cursor = -1
@@ -83,6 +85,26 @@ Thread.new do
       puts "#{e.class} following @#{user.screen_name}: #{e}"
     else
       puts "Followed @#{user.screen_name}"
+    end
+  end
+end
+
+Thread.new do
+  last = Time.at(0)
+  loop do
+    sleep(1)
+    now = Time.now
+    if now.min == 55 && last.hour == now.hour || last.year != now.year
+      message = @markov.create
+      puts "Scheduled post: #{message}"
+      begin
+        twitter.update(message)
+      rescue => e
+        puts "#{e.class} posting: #{e}"
+      else
+        puts "Posted."
+        last = now
+      end
     end
   end
 end
