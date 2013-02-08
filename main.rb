@@ -11,22 +11,16 @@ options = {
   :oauth_token_secret => ENV['ACCESS_TOKEN_SECRET'],
 }
 
-twitter = Twitter.client(options)
-stream  = UserStream.client(options)
-@user   = twitter.verify_credentials
-@markov = Markov.new
-
 def get_text(status)
   status.source.gsub!(/<[^>]+>/, '')
   status.text.gsub!(/[@＠#＃]\w+|殺|https?:\/\/t.co\/\w+|[rqｒｑＲＱ][tｔＴ].*/im, '')
   status.text.strip!
 
-  if false
-    || status.user.protected
-    || status.user.id == @user.id
-    || status.text.empty?
-    || (status.in_reply_to_user_id && status.in_reply_to_user_id != @user.id)
-    || [
+  if status.user.protected ||
+    status.user.id == @user.id ||
+    status.text.empty? ||
+    (status.in_reply_to_user_id && status.in_reply_to_user_id != @user.id) ||
+    [
       'twittbot.net',
       'EasyBotter',
       'ツイ助。',
@@ -40,7 +34,10 @@ def get_text(status)
   status.text
 end
 
-twitter.home_timeline(:count => 30).map { |status| get_text(status) }.compact.each { |status| add(status, true) }
+twitter = Twitter::Client.new(options)
+stream = UserStream.client(options)
+@user = twitter.verify_credentials
+@markov = Markov.new(twitter.home_timeline(:count => 30).map { |status| get_text(status) }.compact)
 
 loop do
   stream.user(:replies => 'all') do |status|

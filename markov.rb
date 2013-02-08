@@ -3,6 +3,8 @@
 require 'okura/serializer'
 
 class Markov
+  attr_reader :splited, :original
+
   def initialize(texts = [])
     @original = []
     @splited = []
@@ -11,7 +13,7 @@ class Markov
   end
 
   def add(text)
-    words = @tagger.wakati(text)
+    words = @tagger.wakati(text, nil)
     return false if words.length < 4
     @splited.push(words)
     @original.push(text)
@@ -27,8 +29,8 @@ class Markov
     table = Hash.new([].freeze)
     @splited.each do |words|
       prev = 'BOS/EOS'
-      words.each { |word| table[prev].push(prev = word) }
-      table[prev].push('BOS/EOS')
+      words.each { |word| table[prev] += [prev = word] }
+      table[prev] += ['BOS/EOS']
     end
     table
   end
