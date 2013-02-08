@@ -41,8 +41,51 @@ end
 twitter = Twitter::Client.new(options)
 stream = UserStream.client(options)
 @user = twitter.verify_credentials
-@markov = Markov.new(twitter.home_timeline(:count => 30).map { |status| get_text(status) }.compact)
+@markov = Markov.new(twitter.home_timeline(:count => 200).map { |status| get_text(status) }.compact[0...30])
 puts "Ready (Bot: @#{@user.screen_name})"
+
+Thread.new do
+  friends = []
+  cursor = -1
+  while cursor.nonzero?
+    result = twitter.friend_ids(@user, :cursor => cursor)
+    cursor = result.next_cursor
+    friends.push(*result.ids)
+  end
+
+  followers = []
+  cursor = -1
+  while cursor.nonzero?
+    result = twitter.follower_ids(@user, :cursor => cursor)
+    cursor = result.next_cursor
+    followers.push(*result.ids)
+  end
+
+  twitter.friendships(friends - followers).each do |user|
+    next if user[:connections].include?('followed_by')
+    puts "Unfollowed by @#{user.screen_name}.  Unfollowing..."
+    begin
+      twitter.unfollow(user)
+    rescue => e
+      puts "#{e.class} unfollowing @#{user.screen_name}: #{e}"
+    else
+      puts "Unfollowed @#{user.screen_name}"
+    end
+  end
+
+  twitter.friendships(followers - friends).each do |user|
+    next if user[:connections].include?('following')
+    next if user[:connections].include?('following_requested')
+    puts "Followed by @#{user.screen_name}.  Following back..."
+    begin
+      twitter.follow!(user)
+    rescue  => e
+      puts "#{e.class} following @#{user.screen_name}: #{e}"
+    else
+      puts "Followed @#{user.screen_name}"
+    end
+  end
+end
 
 loop do
   stream.user(:replies => 'all') do |status|
