@@ -63,28 +63,34 @@ Thread.new do
     followers.push(*result.ids)
   end
 
-  twitter.friendships(friends - followers).each do |user|
-    next if user[:connections].include?('followed_by')
-    puts "Unfollowed by @#{user.screen_name}.  Unfollowing..."
-    begin
-      twitter.unfollow(user)
-    rescue => e
-      puts "#{e.class} unfollowing @#{user.screen_name}: #{e}"
-    else
-      puts "Unfollowed @#{user.screen_name}"
+  unfollowers = friends - followers
+  unless unfollowers.empty?
+    twitter.friendships(unfollowers).each do |user|
+      next if user[:connections].include?('followed_by')
+      puts "Unfollowed by @#{user.screen_name}.  Unfollowing..."
+      begin
+        twitter.unfollow(user)
+      rescue => e
+        puts "#{e.class} unfollowing @#{user.screen_name}: #{e}"
+      else
+        puts "Unfollowed @#{user.screen_name}"
+      end
     end
   end
 
-  twitter.friendships(followers - friends).each do |user|
-    next if user[:connections].include?('following')
-    next if user[:connections].include?('following_requested')
-    puts "Followed by @#{user.screen_name}.  Following back..."
-    begin
-      twitter.follow!(user)
-    rescue  => e
-      puts "#{e.class} following @#{user.screen_name}: #{e}"
-    else
-      puts "Followed @#{user.screen_name}"
+  new_followers = followers - friends
+  unless new_followers.empty?
+    twitter.friendships(new_followers).each do |user|
+      next if user[:connections].include?('following')
+      next if user[:connections].include?('following_requested')
+      puts "Followed by @#{user.screen_name}.  Following back..."
+      begin
+        twitter.follow!(user)
+      rescue  => e
+        puts "#{e.class} following @#{user.screen_name}: #{e}"
+      else
+        puts "Followed @#{user.screen_name}"
+      end
     end
   end
 end
@@ -94,7 +100,7 @@ Thread.new do
   loop do
     sleep(1)
     now = Time.now
-    if now.min == 55 && last.hour == now.hour || last.year != now.year
+    if now.min == 0 && last.hour == now.hour || last.year != now.year
       message = @markov.create
       puts "Scheduled post: #{message}"
       begin
