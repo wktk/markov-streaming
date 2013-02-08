@@ -28,6 +28,7 @@ class Markov
   def get_table
     table = Hash.new([].freeze)
     @splited.each do |words|
+      words = words.clone
       prev = words.shift
       words.each { |word| table[prev] += [prev = word] }
     end
