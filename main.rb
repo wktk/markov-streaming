@@ -46,19 +46,13 @@ loop do
   stream.user(:replies => 'all') do |status|
     if status.text && status.user.id != @user.id
       if status.text =~ /[@＠]#{@user.screen_name}(?!\w)|^#{@user.name}へ。/ && status.text !~ /[rqｒｑＲＱ][tｔＴ]/i
-        begin
-          twitter.update("@#{status.user.screen_name} #{@markov.create}"[0...140], :in_reply_to_status_id => status.id)
-        rescue
-        end
+        message = "@#{status.user.screen_name} #{@markov.create}"[0...140]
+        twitter.update(message, :in_reply_to_status_id => status.id) rescue nil
       end
       text = get_text(status)
       @markov.add_new(text) if text
     elsif status.event == 'follow' && status.target.id == @user.id
-      begin
-        # フォロー返し
-        twitter.follow(status.source.screen_name)
-      rescue
-      end
+      twitter.follow(status.source.screen_name) rescue nil
     end
   end
   sleep(300)
