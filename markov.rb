@@ -1,6 +1,5 @@
 # coding: utf-8
 
-require 'net/http'
 require 'okura/serializer'
 
 class Markov
