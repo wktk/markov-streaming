@@ -28,7 +28,7 @@ class Markov
       words.each { |word| dictionary[prev] += [prev = word] }
       dictionary[prev] += ['BOS/EOS']
     end
-    return dictionary
+    dictionary
   end
 
   def create(dictionary = self.dictionary, original_texts = @original_texts)
@@ -40,9 +40,9 @@ class Markov
         break if word == 'BOS/EOS'
         text += word
       end
-      return text if !original_texts.index(text)
+      break if !original_texts.index(text)
     end
-    return ''
+    text
   end
 
   def wakati(text)
