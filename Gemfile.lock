@@ -1,3 +1,13 @@
+GIT
+  remote: git://github.com/wktk/userstream.git
+  revision: 46e02c196d68b6cbdd514784cf6e0e31c6bb315e
+  branch: set-timeout
+  specs:
+    userstream (1.2.3)
+      hashie (~> 1.2.0)
+      oauth (~> 0.4.7)
+      yajl-ruby (~> 1.1.0)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -13,9 +23,7 @@ GEM
       faraday (~> 0.8, < 0.10)
       multi_json (~> 1.0)
       simple_oauth (~> 0.2)
-    userstream (1.2.3)
-      hashie (~> 1.2.0)
-      oauth (~> 0.4.7)
+    yajl-ruby (1.1.0)
 
 PLATFORMS
   ruby
@@ -23,4 +31,4 @@ PLATFORMS
 DEPENDENCIES
   okura (= 0.0.1)
   twitter (~> 4.5.0)
-  userstream (~> 1.2.3)
+  userstream (~> 1.2.3)!
