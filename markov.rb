@@ -24,9 +24,9 @@ class Markov
   def dictionary
     dictionary = Hash.new([].freeze)
     @splited_texts.each do |words|
-      prev = '[[START]]'
+      prev = 'BOS/EOS'
       words.each { |word| dictionary[prev] += [prev = word] }
-      dictionary[prev] += ['[[END]]']
+      dictionary[prev] += ['BOS/EOS']
     end
     return dictionary
   end
@@ -34,10 +34,10 @@ class Markov
   def create(dictionary = self.dictionary, original_texts = @original_texts)
     for i in 1..50
       text = ''
-      word = '[[START]]'
+      word = 'BOS/EOS'
       loop do
         word = dictionary[word].sample
-        break if word == '[[END]]'
+        break if word == 'BOS/EOS'
         text += word
       end
       return text if !original_texts.index(text)
@@ -47,7 +47,5 @@ class Markov
 
   def split(text)
     words = @tagger.wakati(text, nil)
-    words.delete('BOS/EOS')
-    return words
   end
 end
