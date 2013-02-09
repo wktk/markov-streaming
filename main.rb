@@ -136,6 +136,7 @@ loop do
       if text
         puts "Adding to markov-table: @#{status.user.screen_name}: #{text[0]}"
         @markov.add(*text)
+        puts "Table size is now #{@markov.text_ids.size}"
       end
     elsif status.event == 'follow' && status.target.id == @user.id
       puts "Followed by @#{status.source.screen_name}.  Following back..."
