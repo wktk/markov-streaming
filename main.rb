@@ -5,7 +5,7 @@ require 'user_stream'
 require './markov'
 
 def puts(*args)
-  STDERR.puts *args
+  STDERR.puts(*args)
 end
 
 def check_status(status)
