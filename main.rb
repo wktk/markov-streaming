@@ -102,12 +102,17 @@ Thread.new do
     sleep(1)
     now = Time.now
     if min_regexp =~ now.min.to_s && (last.nil? || last.hour != now.hour || last.min != now.min)
-      message = @markov.create
-      puts "Scheduled post at #{now.hour}:#{now.min}: #{message}"
       begin
+        message = @markov.create
+        puts "Scheduled post at #{now.hour}:#{now.min}: #{message}"
         result = twitter.update(message)
       rescue => e
         puts "#{e.class} posting: #{e}"
+        if e.to_s =~ /duplicate/
+          count ||= 0
+          count += 1
+          retry if count < 10        
+        end
       else
         puts "Posted: #{result.text}"
         last = now
@@ -121,12 +126,17 @@ callback = Proc.new do |status|
     if status.text && status.user.id != @user.id
       if status.text =~ /[@＠]#{@user.screen_name}(?!\w)|^#{@user.name}へ。/ && status.text !~ /[rqｒｑＲＱ][tｔＴ]/i
         puts "Mention from @#{status.user.screen_name}: #{status.text}"
-        message = "@#{status.user.screen_name} #{@markov.create}"[0...140]
-        puts "Sending reply: #{message}"
         begin
+          message = "@#{status.user.screen_name} #{@markov.create}"[0...140]
+          puts "Sending reply: #{message}"
           result = twitter.update(message, :in_reply_to_status_id => status.id)
         rescue => e
           puts "#{e.class} sending reply: #{e}"
+          if e.to_s =~ /duplicate/
+            count ||= 0
+            count += 1
+            retry if count < 10
+          end
         else
           puts "Replied: #{result.text}"
         end
