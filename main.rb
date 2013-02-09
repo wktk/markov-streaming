@@ -116,8 +116,8 @@ Thread.new do
   end
 end
 
-loop do
-  stream.user(:replies => 'all') do |status|
+callback = Proc.new do |status|
+  Thread.new do
     if status.text && status.user.id != @user.id
       if status.text =~ /[@＠]#{@user.screen_name}(?!\w)|^#{@user.name}へ。/ && status.text !~ /[rqｒｑＲＱ][tｔＴ]/i
         puts "Mention from @#{status.user.screen_name}: #{status.text}"
@@ -151,5 +151,9 @@ loop do
       puts "Deleted from table: #{@markov.delete(status[:delete].status.id_str)}"
     end
   end
+end
+
+loop do
+  stream.user(:replies => :all, &callback)
   sleep(300)
 end
