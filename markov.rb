@@ -3,7 +3,8 @@
 require 'okura/serializer'
 
 class Markov
-  attr_reader :splited, :original
+  attr_accessor :max_size, :tagger
+  attr_reader :splited, :original, :text_ids
 
   def initialize(texts = {}, max_size = 30)
     @text_ids = []
