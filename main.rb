@@ -103,13 +103,13 @@ Thread.new do
     now = Time.now
     if min_regexp =~ now.min.to_s && (last.nil? || last.hour != now.hour || last.min != now.min)
       message = @markov.create
-      puts "Scheduled post: #{message}"
+      puts "Scheduled post at #{now.hour}:#{now.min}: #{message}"
       begin
-        twitter.update(message)
+        result = twitter.update(message)
       rescue => e
         puts "#{e.class} posting: #{e}"
       else
-        puts "Posted."
+        puts "Posted: #{result.text}"
         last = now
       end
     end
@@ -134,9 +134,8 @@ callback = Proc.new do |status|
 
       text = check_status(status)
       if text
-        puts "Adding to markov-table: @#{status.user.screen_name}: #{text[0]}"
+        puts "Adding to table: @#{status.user.screen_name}: #{text[0]}"
         @markov.add(*text)
-        puts "Table size is now #{@markov.text_ids.size}"
       end
     elsif status.event == 'follow' && status.target.id == @user.id
       puts "Followed by @#{status.source.screen_name}.  Following back..."
