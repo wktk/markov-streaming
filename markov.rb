@@ -5,29 +5,36 @@ require 'okura/serializer'
 class Markov
   attr_reader :splited, :original
 
-  def initialize(texts = [])
-    @original = []
-    @splited = []
+  def initialize(texts = {}, max_size = 30)
+    @text_ids = []
+    @original = {}
+    @splited = {}
+    @max_size = max_size
     @tagger = Okura::Serializer::FormatInfo.create_tagger 'naist-jdic'
-    texts.each { |text| add(text) }
+    texts.each { |text| add(*text) }
   end
 
-  def add(text)
+  def add(text, id)
     words = @tagger.wakati(text)
     return false if words.length < 6
-    @splited.push(words)
-    @original.push(text)
+
+    @text_ids.push(id.to_s)
+    @splited[id.to_s] = words
+    @original[id.to_s] = text
+
+    if @text_ids.size > @max_size
+      delete(@text_ids.shift)
+    end
   end
 
-  def add_new(text)
-    add(text)
-    @splited.shift
-    @original.shift
+  def delete(id)
+    @splited.delete(id.to_s)
+    @original.delete(id.to_s)
   end
 
   def get_table
     table = Hash.new([].freeze)
-    @splited.each do |words|
+    @splited.values.each do |words|
       words = words.clone
       prev = words.shift
       words.each { |word| table[prev] += [prev = word] }
@@ -35,7 +42,7 @@ class Markov
     table
   end
 
-  def create(table = get_table, original = @original)
+  def create(table = get_table, original = @original.values)
     text = ''
     50.times do
       text = ''

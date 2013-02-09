@@ -8,7 +8,7 @@ def puts(*args)
   STDERR.puts *args
 end
 
-def get_text(status)
+def check_status(status)
   status.source.gsub!(/<[^>]+>/, '')
   status.text.gsub!(/[@＠#＃]\w+|殺|https?:\/\/t.co\/\w+|[rqｒｑＲＱ][tｔＴ].*/im, '')
   status.text.strip!
@@ -28,7 +28,7 @@ def get_text(status)
     return nil
   end
 
-  status.text
+  [status.text, status.id]
 end
 
 options = {
@@ -41,7 +41,7 @@ options = {
 twitter = Twitter::Client.new(options)
 stream = UserStream::Client.new(options)
 @user = twitter.verify_credentials
-@markov = Markov.new(twitter.home_timeline(:count => 200).map { |status| get_text(status) }.compact[0...30])
+@markov = Markov.new(twitter.home_timeline(:count => 200).map { |status| check_status(status) }.compact.reverse)
 puts "Ready (Bot: @#{@user.screen_name})"
 
 Thread.abort_on_exception = true
@@ -132,10 +132,10 @@ loop do
         end
       end
 
-      text = get_text(status)
+      text = check_status(status)
       if text
-        puts "Adding to markov-table: @#{status.user.screen_name}: #{text}"
-        @markov.add_new(text)
+        puts "Adding to markov-table: @#{status.user.screen_name}: #{text[0]}"
+        @markov.add(*text)
       end
     elsif status.event == 'follow' && status.target.id == @user.id
       puts "Followed by @#{status.source.screen_name}.  Following back..."
