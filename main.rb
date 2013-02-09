@@ -146,6 +146,8 @@ loop do
       else
         puts "Followed @#{result.screen_name}"
       end
+    elsif  status[:delete] && status[:delete].status
+      puts "Deleted from table: #{@markov.delete(status[:delete].status.id_str)}"
     end
   end
   sleep(300)

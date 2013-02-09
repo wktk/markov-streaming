@@ -23,11 +23,12 @@ class Markov
     @original[id.to_s] = text
 
     if @text_ids.size > @max_size
-      delete(@text_ids.shift)
+      delete(@text_ids.first)
     end
   end
 
   def delete(id)
+    @text_ids.delete(id.to_s)
     @splited.delete(id.to_s)
     @original.delete(id.to_s)
   end
