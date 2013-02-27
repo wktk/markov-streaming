@@ -10,6 +10,7 @@ end
 
 def check_status(status)
   status.source.gsub!(/<[^>]+>/, '')
+  status.text.gsub!(/&(?:amp|[gl]t);/, '&amp;' => '&', '&gt;' => '>', '&lt;' => '<')
   status.text.gsub!(/[@＠#＃]\w+|殺|https?:\/\/t.co\/\w+|[rqｒｑＲＱ][tｔＴ].*/im, '')
   status.text.strip!
 
