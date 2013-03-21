@@ -43,6 +43,7 @@ twitter = Twitter::Client.new(options)
 stream = UserStream::Client.new(options)
 @user = twitter.verify_credentials
 @markov = Markov.new(twitter.home_timeline(:count => 200).map { |status| check_status(status) }.compact.reverse)
+@blocking = twitter.blocked_ids.ids
 puts "Ready (Bot: @#{@user.screen_name})"
 
 Thread.abort_on_exception = true
@@ -124,7 +125,7 @@ end
 
 callback = Proc.new do |status|
   Thread.new do
-    if status.text && status.user.id != @user.id
+    if status.text && status.user.id != @user.id && !@blocking.include?(status.user.id)
       if status.text =~ /[@＠]#{@user.screen_name}(?!\w)|\A#{@user.name}へ[$。、\s　]/ && status.text !~ /[rqｒｑＲＱ][tｔＴ]/i
         puts "Mention from @#{status.user.screen_name}: #{status.text}"
         begin
@@ -157,8 +158,14 @@ callback = Proc.new do |status|
       else
         puts "Followed @#{result.screen_name}"
       end
-    elsif  status[:delete] && status[:delete].status
+    elsif status[:delete] && status[:delete].status
       puts "Deleted from table: #{@markov.delete(status[:delete].status.id_str)}"
+    elsif status.event == 'block' && status.source.id == @user.id
+      @blocking.push(status.target.id)
+      puts "Blocked @#{status.target.screen_name}"
+    elsif status.event == 'unblock' && status.source.id == @user.id
+      @blocking.delete(status.target.id)
+      puts "Unblocked @#{status.target.screen_name}"
     end
   end
 end
