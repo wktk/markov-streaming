@@ -134,7 +134,7 @@ callback = Proc.new do |status|
           result = twitter.update(message, :in_reply_to_status_id => status.id)
         rescue => e
           puts "#{e.class} sending reply: #{e}"
-          if e.to_s =~ /duplicate/
+          if e.to_s =~ /duplicate|over capacity/
             count ||= 0
             count += 1
             retry if count < 10
