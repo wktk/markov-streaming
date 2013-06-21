@@ -163,7 +163,7 @@ callback = Proc.new do |status|
         @following.push(result.id)
       end
     elsif status.event == 'unfollow'
-      puts "Unfollowed @#{status.target.screen_namne}"
+      puts "Unfollowed @#{status.target.screen_name}"
       @following.delete(status.target.id)
     elsif status[:delete] && status[:delete].status
       puts "Deleted from table: #{@markov.delete(status[:delete].status.id_str)}"
