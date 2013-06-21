@@ -44,6 +44,7 @@ stream = UserStream::Client.new(options)
 @user = twitter.verify_credentials
 @markov = Markov.new(twitter.home_timeline(:count => 200).map { |status| check_status(status) }.compact.reverse)
 @blocking = twitter.blocked_ids.ids
+@following = []
 puts "Ready (Bot: @#{@user.screen_name})"
 
 Thread.abort_on_exception = true
@@ -149,6 +150,8 @@ callback = Proc.new do |status|
         puts "Adding to table: @#{status.user.screen_name}: #{text[0]}"
         @markov.add(*text)
       end
+    elsif status.friends
+      @following = status.friends
     elsif status.event == 'follow' && status.target.id == @user.id
       puts "Followed by @#{status.source.screen_name}.  Following back..."
       begin
@@ -157,11 +160,16 @@ callback = Proc.new do |status|
         puts "#{e.class} following @#{status.source.screen_name}: #{e}"
       else
         puts "Followed @#{result.screen_name}"
+        @following.push(result.id)
       end
+    elsif status.event == 'unfollow'
+      puts "Unfollowed @#{status.target.screen_namne}"
+      @following.delete(status.target.id)
     elsif status[:delete] && status[:delete].status
       puts "Deleted from table: #{@markov.delete(status[:delete].status.id_str)}"
     elsif status.event == 'block' && status.source.id == @user.id
       @blocking.push(status.target.id)
+      @following.delete(status.target.id)
       puts "Blocked @#{status.target.screen_name}"
     elsif status.event == 'unblock' && status.source.id == @user.id
       @blocking.delete(status.target.id)
