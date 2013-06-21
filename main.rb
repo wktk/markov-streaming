@@ -127,7 +127,7 @@ end
 callback = Proc.new do |status|
   Thread.new do
     if status.text && status.user.id != @user.id && !@blocking.include?(status.user.id)
-      if status.text =~ /[@＠]#{@user.screen_name}(?!\w)|\A#{@user.name}へ[$。、\s　]/ && status.text !~ /[rqｒｑＲＱ][tｔＴ]/i
+      if status.text =~ /[@＠]#{@user.screen_name}(?!\w)|\A#{@user.name}へ[$。、\s　]/ && status.text !~ /[rqｒｑＲＱ][tｔＴ]/i && @following.include?(status.user.id)
         puts "Mention from @#{status.user.screen_name}: #{status.text}"
         begin
           message = "@#{status.user.screen_name} #{@markov.create}"[0...140]
